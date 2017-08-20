@@ -27,7 +27,7 @@ public final class DatabaseTool {
     }
 
     public static String createConnectionString(final int port) {
-        final String name = String.format("~/test%d", port);
+        final String name = String.format("./target/test%d", port);
         final String constr = String.format("jdbc:h2:tcp://localhost:%d/%s", port, name);
         LOG.trace("created connection string {}", constr);
         return constr;
