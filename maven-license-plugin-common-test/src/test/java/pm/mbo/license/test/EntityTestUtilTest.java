@@ -15,7 +15,7 @@ public class EntityTestUtilTest {
         EntityTestUtil.checkEntity(null, null);
     }
 
-    @Test
+    @Test(expected = AssertionError.class)
     public void checkEntity_nullRequiredAnnotaitons() throws Exception {
         EntityTestUtil.checkEntity(SomeBean.class, null);
     }

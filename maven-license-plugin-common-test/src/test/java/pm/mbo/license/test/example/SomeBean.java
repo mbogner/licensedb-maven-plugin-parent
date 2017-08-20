@@ -16,4 +16,6 @@ public class SomeBean extends AbstractBean {
 
     private String name;
 
+    private SomeEnum blaaa;
+
 }
