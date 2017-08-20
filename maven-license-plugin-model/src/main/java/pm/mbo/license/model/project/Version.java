@@ -18,7 +18,7 @@ import java.util.List;
 public class Version extends NamedAbstractEntity<Long> {
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "project_id", nullable = false)
+    @JoinColumn(name = "project_id", nullable = false, foreignKey = @ForeignKey(name = "fk_versions__project_id"))
     private Project project;
 
     @OneToMany(mappedBy = "version")

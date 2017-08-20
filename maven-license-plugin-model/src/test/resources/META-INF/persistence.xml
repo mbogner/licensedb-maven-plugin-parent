@@ -7,14 +7,18 @@
     <persistence-unit name="test">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <class>pm.mbo.license.model.project.Project</class>
-        <class>pm.mbo.license.model.project.Version</class>
-        <class>pm.mbo.license.model.project.Module</class>
+        <class>pm.mbo.license.model.artifact.Artifact</class>
+        <class>pm.mbo.license.model.variation.ArtifactLicenseVariationMapping</class>
+        <class>pm.mbo.license.model.variation.LicenseVariation</class>
 
-        <class>pm.mbo.license.model.license.Artifact</class>
+        <class>pm.mbo.license.model.license.ArtifactLicenseMapping</class>
         <class>pm.mbo.license.model.license.License</class>
         <class>pm.mbo.license.model.license.LicensePattern</class>
-        <class>pm.mbo.license.model.license.ArtifactLicenseMapping</class>
+
+        <class>pm.mbo.license.model.project.ArtifactModuleMapping</class>
+        <class>pm.mbo.license.model.project.Module</class>
+        <class>pm.mbo.license.model.project.Project</class>
+        <class>pm.mbo.license.model.project.Version</class>
     </persistence-unit>
 
 </persistence>

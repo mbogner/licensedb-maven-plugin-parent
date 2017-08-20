@@ -1,4 +1,4 @@
-package pm.mbo.license.model.license;
+package pm.mbo.license.model.artifact;
 
 public enum Scope {
 

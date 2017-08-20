@@ -1,9 +1,12 @@
-package pm.mbo.license.model.license;
+package pm.mbo.license.model.artifact;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import pm.mbo.license.model.license.ArtifactLicenseMapping;
 import pm.mbo.license.model.meta.AbstractEntity;
+import pm.mbo.license.model.project.ArtifactModuleMapping;
+import pm.mbo.license.model.variation.ArtifactLicenseVariationMapping;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -11,8 +14,8 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-@ToString(callSuper = true, exclude = "artifactLicenseMappings")
-@EqualsAndHashCode(callSuper = true, exclude = "artifactLicenseMappings")
+@ToString(callSuper = true, exclude = {"artifactLicenseMappings", "artifactModuleMappings", "artifactLicenseVariationMappings"})
+@EqualsAndHashCode(callSuper = true, exclude = {"artifactLicenseMappings", "artifactModuleMappings", "artifactLicenseVariationMappings"})
 @Entity
 @Table(name = "artifacts", uniqueConstraints = {
         @UniqueConstraint(name = "uc_artifacts__maven_coordinates", columnNames = {"maven_coordinates"}),
@@ -36,13 +39,17 @@ public class Artifact extends AbstractEntity<Long> {
     @Column(name = "maven_version", nullable = false)
     private String mavenVersion;
 
-    @Column(name = "license_text")
-    private String licenseText;
-
     @NotNull
     @Enumerated(EnumType.ORDINAL)
     private Scope scope;
 
     @OneToMany(mappedBy = "artifact")
+    private List<ArtifactLicenseVariationMapping> artifactLicenseVariationMappings;
+
+    @OneToMany(mappedBy = "artifact")
     private List<ArtifactLicenseMapping> artifactLicenseMappings;
+
+    @OneToMany(mappedBy = "artifact")
+    private List<ArtifactModuleMapping> artifactModuleMappings;
+
 }
