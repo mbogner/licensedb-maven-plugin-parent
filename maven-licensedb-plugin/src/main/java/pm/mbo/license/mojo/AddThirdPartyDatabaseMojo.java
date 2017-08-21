@@ -11,8 +11,6 @@ import org.codehaus.mojo.license.AddThirdPartyMojo;
 import org.codehaus.mojo.license.model.LicenseMap;
 import pm.mbo.license.model.project.ArtifactModuleMapping;
 import pm.mbo.license.model.project.Module;
-import pm.mbo.license.model.project.Project;
-import pm.mbo.license.model.project.Version;
 import pm.mbo.license.model.variation.ArtifactLicenseVariationMapping;
 import pm.mbo.license.model.variation.LicenseVariation;
 import pm.mbo.license.mojo.dal.EntityManagerDelegate;
@@ -23,15 +21,11 @@ import pm.mbo.license.mojo.dal.project.ModuleRepository;
 import pm.mbo.license.mojo.dal.project.ProjectRepository;
 import pm.mbo.license.mojo.dal.project.VersionRepository;
 import pm.mbo.license.mojo.dal.project.query.FindArtifactModuleMappingByForeignKeysQuery;
-import pm.mbo.license.mojo.dal.project.query.FindModuleByVersionAndMavenCoordinatesQuery;
-import pm.mbo.license.mojo.dal.project.query.FindProjectByNameQuery;
-import pm.mbo.license.mojo.dal.project.query.FindVersionByProjectAndNameQuery;
 import pm.mbo.license.mojo.dal.variation.ArtifactLicenseVariationMappingRepository;
 import pm.mbo.license.mojo.dal.variation.LicenseVariationRepository;
 import pm.mbo.license.mojo.dal.variation.query.FindArtifactLicenseVariationMappingByForeignKeysQuery;
 import pm.mbo.license.mojo.dal.variation.query.FindLicenseVariationByNameQuery;
 
-import java.util.Calendar;
 import java.util.Map;
 import java.util.Set;
 
@@ -101,11 +95,15 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
             log.warn("skipped");
         } else {
             super.doAction();
+            final ProjectMetadata projectMetadata = new ProjectMetadata();
+            projectMetadata.setProjectId(projectId);
+            projectMetadata.setProjectName(projectName);
+            projectMetadata.setProjectComponent(projectComponent);
 
             log.info("##############################################");
-            log.info("# ID: " + projectId);
-            log.info("# PROJECT: " + projectName);
-            log.info("# COMPONENT: " + projectComponent);
+            log.info("# ID: " + projectMetadata.getProjectId());
+            log.info("# PROJECT: " + projectMetadata.getProjectName());
+            log.info("# COMPONENT: " + projectMetadata.getProjectComponent());
             log.info("# VERSION: " + getProject().getVersion());
             log.info("# MODULE: " + getProject().getGroupId() + ":" + getProject().getArtifactId() + ":" + getProject().getPackaging());
             log.info("##############################################");
@@ -116,7 +114,13 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
                     em.begin();
                     initRepos(em);
 
-                    persistProjectStructure();
+                    PersistenceHelper.persistProjectStructure(
+                            projectRepository,
+                            versionRepository,
+                            moduleRepository,
+                            projectMetadata,
+                            getProject()
+                    );
                 }
 
                 final LicenseMap licenseMap = getLicenseMap();
@@ -137,37 +141,6 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
                 }
             }
         }
-    }
-
-    protected void persistProjectStructure() {
-        log.debug("persist project structure");
-        Project project = new Project();
-        project.setKey(projectId);
-        project.setName(projectName);
-        project.setComponent(projectComponent);
-        project.setLastBuild(Calendar.getInstance());
-
-        project = projectRepository.findOrCreate(new FindProjectByNameQuery(project));
-        project.setName(projectName);
-        project.setComponent(projectComponent);
-        project.setLastBuild(Calendar.getInstance());
-        projectRepository.merge(project);
-
-        Version version = new Version();
-        version.setProject(project);
-        version.setName(getProject().getVersion());
-
-        version = versionRepository.findOrCreate(
-                new FindVersionByProjectAndNameQuery(version));
-
-        module = new Module();
-        module.setVersion(version);
-        module.setMavenGroupId(getProject().getGroupId());
-        module.setMavenArtifactId(getProject().getArtifactId());
-        module.setMavenPackaging(getProject().getPackaging());
-        module.setFullCoordinates(module.createFullCoordinates());
-
-        module = moduleRepository.findOrCreate(new FindModuleByVersionAndMavenCoordinatesQuery(module));
     }
 
     protected void initRepos(final EntityManagerDelegate em) {
