@@ -1,0 +1,23 @@
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+             version="2.1">
+
+    <persistence-unit name="mojo">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <class>pm.mbo.license.model.artifact.Artifact</class>
+        <class>pm.mbo.license.model.variation.ArtifactLicenseVariationMapping</class>
+        <class>pm.mbo.license.model.variation.LicenseVariation</class>
+
+        <class>pm.mbo.license.model.license.ArtifactLicenseMapping</class>
+        <class>pm.mbo.license.model.license.License</class>
+        <class>pm.mbo.license.model.license.LicensePattern</class>
+
+        <class>pm.mbo.license.model.project.ArtifactModuleMapping</class>
+        <class>pm.mbo.license.model.project.Module</class>
+        <class>pm.mbo.license.model.project.Project</class>
+        <class>pm.mbo.license.model.project.Version</class>
+    </persistence-unit>
+
+</persistence>

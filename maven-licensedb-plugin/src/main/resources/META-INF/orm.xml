@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+                                     http://xmlns.jcp.org/xml/ns/persistence/orm_2_0.xsd" version="2.1">
+
+    <named-query name="pm.mbo.license.mojo.dal.artifact.query.FindArtifactByMavenCoordinatesQuery">
+        <query>
+            SELECT a FROM Artifact a WHERE a.mavenCoordinates=:coordinates
+        </query>
+    </named-query>
+
+    <named-query name="pm.mbo.license.mojo.dal.project.query.FindArtifactModuleMappingByForeignKeysQuery">
+        <query>
+            SELECT m FROM ArtifactModuleMapping m
+            WHERE m.artifact.id=:artifact_id
+            AND m.module.id=:module_id
+        </query>
+    </named-query>
+
+    <named-query name="pm.mbo.license.mojo.dal.project.query.FindModuleByVersionAndMavenCoordinatesQuery">
+        <query>
+            SELECT m FROM Module m
+            WHERE m.version.id=:version_id
+            AND m.mavenGroupId=:maven_group_id
+            AND m.mavenArtifactId=:maven_artifact_id
+        </query>
+    </named-query>
+
+    <named-query name="pm.mbo.license.mojo.dal.project.query.FindProjectByNameQuery">
+        <query>
+            SELECT p FROM Project p WHERE p.name=:name
+        </query>
+    </named-query>
+
+    <named-query name="pm.mbo.license.mojo.dal.project.query.FindVersionByProjectAndNameQuery">
+        <query>
+            SELECT v FROM Version v WHERE v.project.id=:project_id AND v.name=:name
+        </query>
+    </named-query>
+
+    <named-query name="pm.mbo.license.mojo.dal.variation.query.FindArtifactLicenseVariationMappingByForeignKeysQuery">
+        <query>
+            SELECT m FROM ArtifactLicenseVariationMapping m
+            WHERE m.artifact.id=:artifact_id
+            AND m.licenseVariation.id=:license_variation_id
+        </query>
+    </named-query>
+
+    <named-query name="pm.mbo.license.mojo.dal.variation.query.FindLicenseVariationByNameQuery">
+        <query>
+            SELECT v FROM LicenseVariation v WHERE v.name=:name
+        </query>
+    </named-query>
+
+</entity-mappings>

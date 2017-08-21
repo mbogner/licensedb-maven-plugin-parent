@@ -41,7 +41,13 @@ public class Artifact extends AbstractEntity<Long> {
 
     @NotNull
     @Enumerated(EnumType.ORDINAL)
-    private Scope scope;
+    @Column(name = "maven_type", nullable = false)
+    private Type mavenType;
+
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "maven_scope", nullable = false)
+    private Scope mavenScope;
 
     @OneToMany(mappedBy = "artifact")
     private List<ArtifactLicenseVariationMapping> artifactLicenseVariationMappings;
