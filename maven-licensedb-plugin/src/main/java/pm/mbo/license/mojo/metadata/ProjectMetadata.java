@@ -1,4 +1,4 @@
-package pm.mbo.license.mojo;
+package pm.mbo.license.mojo.metadata;
 
 import lombok.Data;
 

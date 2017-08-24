@@ -4,6 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 import pm.mbo.license.model.artifact.Scope;
 import pm.mbo.license.model.artifact.Type;
+import pm.mbo.license.mojo.metadata.ArtifactMetadata;
 
 import java.util.Set;
 

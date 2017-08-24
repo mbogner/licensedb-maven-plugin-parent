@@ -25,6 +25,8 @@ import pm.mbo.license.mojo.dal.variation.ArtifactLicenseVariationMappingReposito
 import pm.mbo.license.mojo.dal.variation.LicenseVariationRepository;
 import pm.mbo.license.mojo.dal.variation.query.FindArtifactLicenseVariationMappingByForeignKeysQuery;
 import pm.mbo.license.mojo.dal.variation.query.FindLicenseVariationByNameQuery;
+import pm.mbo.license.mojo.metadata.ArtifactMetadata;
+import pm.mbo.license.mojo.metadata.ProjectMetadata;
 
 import java.util.Map;
 import java.util.Set;

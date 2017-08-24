@@ -10,6 +10,7 @@ import pm.mbo.license.mojo.dal.project.VersionRepository;
 import pm.mbo.license.mojo.dal.project.query.FindModuleByVersionAndMavenCoordinatesQuery;
 import pm.mbo.license.mojo.dal.project.query.FindProjectByNameQuery;
 import pm.mbo.license.mojo.dal.project.query.FindVersionByProjectAndNameQuery;
+import pm.mbo.license.mojo.metadata.ProjectMetadata;
 
 import java.util.Calendar;
 
