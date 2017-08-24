@@ -2,6 +2,7 @@ package pm.mbo.license.mojo.dal;
 
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
+import pm.mbo.license.mojo.helper.Conditions;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -20,38 +21,42 @@ public class EntityManagerDelegate implements Closeable {
 
     public EntityManagerDelegate(final boolean dryRun, final Map<String, String> properties) {
         useEm = !dryRun;
-        if (null == properties) {
-            throw new IllegalArgumentException("properties must not be null");
-        }
+        Conditions.notNull("properties", properties);
         if (useEm) {
             emf = Persistence.createEntityManagerFactory("mojo", properties);
             em = emf.createEntityManager();
         }
     }
 
-    public void persist(Object o) {
+    public void persist(final Object obj) {
+        Conditions.notNull("obj", obj);
         if (useEm) {
-            em.persist(o);
+            em.persist(obj);
         }
     }
 
-    public <T> T merge(T t) {
+    public <T> T merge(final T obj) {
+        Conditions.notNull("obj", obj);
         if (useEm) {
-            return em.merge(t);
-        }
-        return null;
-    }
-
-    public <T> T find(Class<T> aClass, Object o) {
-        if (useEm) {
-            return em.find(aClass, o);
+            return em.merge(obj);
         }
         return null;
     }
 
-    public <T> T getReference(Class<T> aClass, Object o) {
+    public <T> T find(final Class<T> aClass, final Object obj) {
+        Conditions.notNull("aClass", aClass);
+        Conditions.notNull("obj", obj);
         if (useEm) {
-            return em.getReference(aClass, o);
+            return em.find(aClass, obj);
+        }
+        return null;
+    }
+
+    public <T> T getReference(final Class<T> aClass, final Object obj) {
+        Conditions.notNull("aClass", aClass);
+        Conditions.notNull("obj", obj);
+        if (useEm) {
+            return em.getReference(aClass, obj);
         }
         return null;
     }
@@ -80,9 +85,11 @@ public class EntityManagerDelegate implements Closeable {
         }
     }
 
-    public <T> TypedQuery<T> createNamedQuery(String s, Class<T> aClass) {
+    public <T> TypedQuery<T> createNamedQuery(final String queryName, final Class<T> resultType) {
+        Conditions.notNull("queryName", queryName);
+        Conditions.notNull("resultType", resultType);
         if (useEm) {
-            return em.createNamedQuery(s, aClass);
+            return em.createNamedQuery(queryName, resultType);
         }
         return null;
     }

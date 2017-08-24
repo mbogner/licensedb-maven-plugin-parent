@@ -13,9 +13,8 @@ import java.util.Set;
 public class MavenHelper {
 
     public ArtifactMetadata getMetadataForMavenProject(final MavenProject mavenProject, final Set<Artifact> dependencies) {
-        if(null == mavenProject || null == dependencies) {
-            throw new IllegalArgumentException("mavenProject and dependencies must not be null");
-        }
+        Conditions.notNull("mavenProject", mavenProject);
+        Conditions.notNull("dependencies", dependencies);
         for (final Artifact artifact : dependencies) {
             if (artifactEqualsMavenProject(artifact, mavenProject)) {
                 final ArtifactMetadata metadata = new ArtifactMetadata();
@@ -31,18 +30,14 @@ public class MavenHelper {
         return getArtifactCoordinates(artifact).equals(getMavenProjectCoordinates(mavenProject));
     }
 
-    public String getArtifactCoordinates(final Artifact obj) {
-        if(null == obj) {
-            throw new IllegalArgumentException("artifact must not be null");
-        }
-        return String.format("%s:%s:%s", obj.getGroupId(), obj.getArtifactId(), obj.getVersion());
+    public String getArtifactCoordinates(final Artifact artifact) {
+        Conditions.notNull("artifact", artifact);
+        return String.format("%s:%s:%s", artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
     }
 
-    public String getMavenProjectCoordinates(final MavenProject obj) {
-        if(null == obj) {
-            throw new IllegalArgumentException("mavenproject must not be null");
-        }
-        return String.format("%s:%s:%s", obj.getGroupId(), obj.getArtifactId(), obj.getVersion());
+    public String getMavenProjectCoordinates(final MavenProject mavenProject) {
+        Conditions.notNull("mavenProject", mavenProject);
+        return String.format("%s:%s:%s", mavenProject.getGroupId(), mavenProject.getArtifactId(), mavenProject.getVersion());
     }
 
 }

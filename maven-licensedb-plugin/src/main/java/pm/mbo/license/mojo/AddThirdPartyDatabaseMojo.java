@@ -105,7 +105,7 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
         log.info("# MODULE: " + getProject().getGroupId() + ":" + getProject().getArtifactId() + ":" + getProject().getPackaging());
         log.info("##############################################");
 
-        if(dryRun) {
+        if (dryRun) {
             log.warn("dryRun - skip database");
         } else {
             log.info("connecting to database");
@@ -143,7 +143,7 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
         }
     }
 
-    protected void processDependecy(final String licenseString, final MavenProject mavenProject, final Module module,final ArtifactMetadata metadata) {
+    protected void processDependecy(final String licenseString, final MavenProject mavenProject, final Module module, final ArtifactMetadata metadata) {
         final String coordinates = mavenHelper.getMavenProjectCoordinates(mavenProject);
         log.info(String.format(" => %s:%s:%s", coordinates, metadata.getScope(), metadata.getType()));
         if (!dryRun) {
@@ -156,7 +156,10 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
     }
 
     protected Map<String, String> createHibernateProperties() {
-        final HibernateConfigBuilder hibernateConfigBuilder = new HibernateConfigBuilder()
+        if(null == databasePassword) {
+            databasePassword = "";
+        }
+        final HibernateConfigBuilder hibernateConfigBuilder = HibernateConfigBuilder.builder()
                 .url(databaseUrl)
                 .user(databaseUser)
                 .password(databasePassword)

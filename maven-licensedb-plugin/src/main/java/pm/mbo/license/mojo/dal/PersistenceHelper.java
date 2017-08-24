@@ -16,6 +16,7 @@ import pm.mbo.license.mojo.dal.project.query.FindProjectByNameQuery;
 import pm.mbo.license.mojo.dal.project.query.FindVersionByProjectAndNameQuery;
 import pm.mbo.license.mojo.dal.variation.query.FindArtifactLicenseVariationMappingByForeignKeysQuery;
 import pm.mbo.license.mojo.dal.variation.query.FindLicenseVariationByNameQuery;
+import pm.mbo.license.mojo.helper.Conditions;
 import pm.mbo.license.mojo.metadata.ArtifactMetadata;
 import pm.mbo.license.mojo.metadata.ProjectMetadata;
 
@@ -36,16 +37,17 @@ public class PersistenceHelper {
 
     private boolean needsInit = true;
 
-    public void initRepos(final EntityManagerDelegate em) {
-        projectRepository = new Repository<>(em);
-        versionRepository = new Repository<>(em);
-        moduleRepository = new Repository<>(em);
+    public void initRepos(final EntityManagerDelegate emd) {
+        Conditions.notNull("emd", emd);
+        projectRepository = new Repository<>(emd);
+        versionRepository = new Repository<>(emd);
+        moduleRepository = new Repository<>(emd);
 
-        artifactRepository = new Repository<>(em);
-        artifactModuleMappingRepository = new Repository<>(em);
+        artifactRepository = new Repository<>(emd);
+        artifactModuleMappingRepository = new Repository<>(emd);
 
-        licenseVariationRepository = new Repository<>(em);
-        variationMappingRepository = new Repository<>(em);
+        licenseVariationRepository = new Repository<>(emd);
+        variationMappingRepository = new Repository<>(emd);
         needsInit = false;
     }
 

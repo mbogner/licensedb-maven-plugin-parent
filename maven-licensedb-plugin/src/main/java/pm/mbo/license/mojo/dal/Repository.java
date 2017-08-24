@@ -1,6 +1,7 @@
 package pm.mbo.license.mojo.dal;
 
 import pm.mbo.license.model.meta.AbstractEntity;
+import pm.mbo.license.mojo.helper.Conditions;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -11,13 +12,12 @@ public class Repository<ID extends Serializable, T extends AbstractEntity<ID>> {
     protected final EntityManagerDelegate emd;
 
     public Repository(final EntityManagerDelegate emd) {
-        if (null == emd) {
-            throw new IllegalStateException("emd must not be null");
-        }
+        Conditions.notNull("emd", emd);
         this.emd = emd;
     }
 
     public T merge(T t) {
+        Conditions.notNull("t", t);
         return emd.merge(t);
     }
 
@@ -30,9 +30,7 @@ public class Repository<ID extends Serializable, T extends AbstractEntity<ID>> {
     }
 
     public <R> R findSingle(final QueryDefinition<R> definition) {
-        if(null == definition) {
-            throw new IllegalArgumentException("definition must not be null");
-        }
+        Conditions.notNull("definition", definition);
         final TypedQuery<R> query = emd.createNamedQuery(definition.getQueryName(), definition.getResultClass());
         definition.setParameters(query);
         try {
