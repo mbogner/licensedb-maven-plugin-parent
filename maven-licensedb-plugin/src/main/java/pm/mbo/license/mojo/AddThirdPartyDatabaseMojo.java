@@ -1,22 +1,17 @@
 package pm.mbo.license.mojo;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.mojo.license.AddThirdPartyMojo;
 import org.codehaus.mojo.license.model.LicenseMap;
-import pm.mbo.license.model.project.ArtifactModuleMapping;
+import pm.mbo.license.model.artifact.Artifact;
 import pm.mbo.license.model.project.Module;
-import pm.mbo.license.model.project.Project;
-import pm.mbo.license.model.project.Version;
-import pm.mbo.license.model.variation.ArtifactLicenseVariationMapping;
 import pm.mbo.license.model.variation.LicenseVariation;
 import pm.mbo.license.mojo.dal.EntityManagerDelegate;
-import pm.mbo.license.mojo.dal.Repository;
+import pm.mbo.license.mojo.dal.HibernateConfigBuilder;
+import pm.mbo.license.mojo.dal.PersistenceHelper;
+import pm.mbo.license.mojo.helper.MavenHelper;
 import pm.mbo.license.mojo.metadata.ArtifactMetadata;
 import pm.mbo.license.mojo.metadata.ProjectMetadata;
 
@@ -63,22 +58,19 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
     @Parameter(property = "licensedb.skip", defaultValue = "false")
     private boolean skip;
 
+    @Parameter(property = "licensedb.eatExceptions", defaultValue = "true")
+    private boolean eatExceptions;
+
     @Parameter(property = "project.artifacts", required = true, readonly = true)
-    private Set<Artifact> dependencies;
+    private Set<org.apache.maven.artifact.Artifact> dependencies;
+
+    @Component
+    private PersistenceHelper persistenceHelper;
+
+    @Component
+    private MavenHelper mavenHelper;
 
     private final Log log = getLog();
-
-    private Repository<Long, Project> projectRepository;
-    private Repository<Long, Version> versionRepository;
-    private Repository<Long, Module> moduleRepository;
-
-    private Repository<Long, pm.mbo.license.model.artifact.Artifact> artifactRepository;
-    private Repository<Long, ArtifactModuleMapping> artifactModuleMappingRepository;
-
-    private Repository<Long, LicenseVariation> licenseVariationRepository;
-    private Repository<Long, ArtifactLicenseVariationMapping> variationMappingRepository;
-
-    private Module module;
 
     /**
      * {@inheritDoc}
@@ -88,77 +80,78 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
         if (skip) {
             log.warn("skipped");
         } else {
-            super.doAction();
-            final ProjectMetadata projectMetadata = new ProjectMetadata();
-            projectMetadata.setProjectId(projectId);
-            projectMetadata.setProjectName(projectName);
-            projectMetadata.setProjectComponent(projectComponent);
-
-            log.info("##############################################");
-            log.info("# ID: " + projectMetadata.getProjectId());
-            log.info("# PROJECT: " + projectMetadata.getProjectName());
-            log.info("# COMPONENT: " + projectMetadata.getProjectComponent());
-            log.info("# VERSION: " + getProject().getVersion());
-            log.info("# MODULE: " + getProject().getGroupId() + ":" + getProject().getArtifactId() + ":" + getProject().getPackaging());
-            log.info("##############################################");
-
-            log.debug("connecting to database (dryRun: " + dryRun + ")");
-            try (final EntityManagerDelegate em = new EntityManagerDelegate(dryRun, createHibernateProperties())) {
-                if (!dryRun) {
-                    em.begin();
-                    initRepos(em);
-
-                    module = PersistenceHelper.persistProjectStructure(
-                            projectRepository,
-                            versionRepository,
-                            moduleRepository,
-                            projectMetadata,
-                            getProject()
-                    );
+            if (eatExceptions) {
+                try {
+                    export();
+                } catch (final Throwable e) { // catch everything bad happening in this mojo
+                    log.error(e);
                 }
-
-                final LicenseMap licenseMap = getLicenseMap();
-                log.info("# license mappings");
-                for (final String licenseString : licenseMap.keySet()) {
-                    log.info("mappings of " + licenseString);
-                    for (final MavenProject mavenProject : licenseMap.get(licenseString)) {
-                        processDependecy(licenseString, mavenProject, MavenUtil.getMetadataForMavenProject(mavenProject, dependencies));
-                    }
-                    if (!dryRun) {
-                        em.flush();
-                        em.clear();
-                    }
-                }
-
-                if (!dryRun) {
-                    em.commit();
-                }
+            } else {
+                export();
             }
         }
     }
 
-    protected void initRepos(final EntityManagerDelegate em) {
-        log.debug("initialize repos");
-        projectRepository = new Repository<>(log, em);
-        versionRepository = new Repository<>(log, em);
-        moduleRepository = new Repository<>(log, em);
+    private void export() throws Exception {
+        super.doAction();
+        final ProjectMetadata projectMetadata = new ProjectMetadata(projectId, projectName, projectComponent);
 
-        artifactRepository = new Repository<>(log, em);
-        artifactModuleMappingRepository = new Repository<>(log, em);
+        log.info("##############################################");
+        log.info("# PROJECT");
+        log.info("#  - ID: " + projectMetadata.getProjectId());
+        log.info("#  - NAME: " + projectMetadata.getProjectName());
+        log.info("#  - COMPONENT: " + projectMetadata.getProjectComponent());
+        log.info("# VERSION: " + getProject().getVersion());
+        log.info("# MODULE: " + getProject().getGroupId() + ":" + getProject().getArtifactId() + ":" + getProject().getPackaging());
+        log.info("##############################################");
 
-        licenseVariationRepository = new Repository<>(log, em);
-        variationMappingRepository = new Repository<>(log, em);
+        if(dryRun) {
+            log.warn("dryRun - skip database");
+        } else {
+            log.info("connecting to database");
+        }
+
+        try (final EntityManagerDelegate emd = new EntityManagerDelegate(dryRun, createHibernateProperties())) {
+            Module module = null;
+
+            if (!dryRun) {
+                emd.begin();
+                persistenceHelper.initRepos(emd);
+
+                module = persistenceHelper.persistProjectStructure(
+                        projectMetadata,
+                        getProject()
+                );
+            }
+
+            final LicenseMap licenseMap = getLicenseMap();
+            log.info("# license mappings");
+            for (final String licenseString : licenseMap.keySet()) {
+                log.info("mappings of " + licenseString);
+                for (final MavenProject mavenProject : licenseMap.get(licenseString)) {
+                    processDependecy(licenseString, mavenProject, module, mavenHelper.getMetadataForMavenProject(mavenProject, dependencies));
+                }
+                if (!dryRun) {
+                    emd.flush();
+                    emd.clear();
+                }
+            }
+
+            if (!dryRun) {
+                emd.commit();
+            }
+        }
     }
 
-    protected void processDependecy(final String licenseString, final MavenProject mavenProject, final ArtifactMetadata metadata) {
-        String coordinates = MavenUtil.getMavenProjectCoordinates(mavenProject);
+    protected void processDependecy(final String licenseString, final MavenProject mavenProject, final Module module,final ArtifactMetadata metadata) {
+        final String coordinates = mavenHelper.getMavenProjectCoordinates(mavenProject);
         log.info(String.format(" => %s:%s:%s", coordinates, metadata.getScope(), metadata.getType()));
         if (!dryRun) {
-            final pm.mbo.license.model.artifact.Artifact artifact = PersistenceHelper.persistDependency(artifactRepository, mavenProject, coordinates, metadata);
-            final LicenseVariation licenseVariation = PersistenceHelper.persistLicenseVariation(licenseVariationRepository, licenseString);
+            final Artifact artifact = persistenceHelper.persistDependency(mavenProject, coordinates, metadata);
+            final LicenseVariation licenseVariation = persistenceHelper.persistLicenseVariation(licenseString);
 
-            PersistenceHelper.persistArtifactLicenseVariationMapping(variationMappingRepository, artifact, licenseVariation);
-            PersistenceHelper.persistArtifactModuleMapping(artifactModuleMappingRepository, artifact, module);
+            persistenceHelper.persistArtifactLicenseVariationMapping(artifact, licenseVariation);
+            persistenceHelper.persistArtifactModuleMapping(artifact, module);
         }
     }
 

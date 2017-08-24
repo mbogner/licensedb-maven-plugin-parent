@@ -7,17 +7,17 @@ public class EntityTestUtilTest {
 
     @Test
     public void checkEntity_defaults() throws Exception {
-        EntityTestUtil.checkEntity(SomeBean.class);
+        new EntityTestUtil().checkBean(SomeBean.class);
     }
 
     @Test(expected = AssertionError.class)
     public void checkEntity_null() throws Exception {
-        EntityTestUtil.checkEntity(null, null);
+        new EntityTestUtil().checkBean(null, null);
     }
 
     @Test(expected = AssertionError.class)
     public void checkEntity_nullRequiredAnnotaitons() throws Exception {
-        EntityTestUtil.checkEntity(SomeBean.class, null);
+        new EntityTestUtil().checkBean(SomeBean.class, null);
     }
 
 }

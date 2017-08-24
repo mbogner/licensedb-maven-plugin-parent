@@ -1,4 +1,4 @@
-package pm.mbo.license.mojo;
+package pm.mbo.license.mojo.dal;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 

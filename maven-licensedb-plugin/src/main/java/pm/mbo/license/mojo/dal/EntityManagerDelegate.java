@@ -1,5 +1,8 @@
 package pm.mbo.license.mojo.dal;
 
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -9,69 +12,76 @@ import java.util.Map;
 
 public class EntityManagerDelegate implements Closeable {
 
+    private static final Log LOG = new SystemStreamLog();
+
+    private final boolean useEm;
     private EntityManagerFactory emf;
     private EntityManager em;
 
     public EntityManagerDelegate(final boolean dryRun, final Map<String, String> properties) {
-        if (!dryRun) {
+        useEm = !dryRun;
+        if (null == properties) {
+            throw new IllegalArgumentException("properties must not be null");
+        }
+        if (useEm) {
             emf = Persistence.createEntityManagerFactory("mojo", properties);
             em = emf.createEntityManager();
         }
     }
 
     public void persist(Object o) {
-        if (em != null) {
+        if (useEm) {
             em.persist(o);
         }
     }
 
     public <T> T merge(T t) {
-        if (em != null) {
+        if (useEm) {
             return em.merge(t);
         }
         return null;
     }
 
     public <T> T find(Class<T> aClass, Object o) {
-        if (em != null) {
+        if (useEm) {
             return em.find(aClass, o);
         }
         return null;
     }
 
     public <T> T getReference(Class<T> aClass, Object o) {
-        if (em != null) {
+        if (useEm) {
             return em.getReference(aClass, o);
         }
         return null;
     }
 
     public void flush() {
-        if (em != null) {
+        if (useEm) {
             em.flush();
         }
     }
 
     public void clear() {
-        if (em != null) {
+        if (useEm) {
             em.clear();
         }
     }
 
     public void begin() {
-        if (em != null) {
+        if (useEm) {
             em.getTransaction().begin();
         }
     }
 
     public void commit() {
-        if (em != null) {
+        if (useEm) {
             em.getTransaction().commit();
         }
     }
 
     public <T> TypedQuery<T> createNamedQuery(String s, Class<T> aClass) {
-        if (em != null) {
+        if (useEm) {
             return em.createNamedQuery(s, aClass);
         }
         return null;
@@ -79,11 +89,13 @@ public class EntityManagerDelegate implements Closeable {
 
     @Override
     public void close() {
-        if (null != em) {
-            em.close();
-        }
-        if (null != emf) {
-            emf.close();
+        if (useEm) {
+            if (null != em) {
+                em.close();
+            }
+            if (null != emf) {
+                emf.close();
+            }
         }
     }
 }

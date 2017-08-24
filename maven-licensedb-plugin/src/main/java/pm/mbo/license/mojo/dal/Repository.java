@@ -1,6 +1,5 @@
 package pm.mbo.license.mojo.dal;
 
-import org.apache.maven.plugin.logging.Log;
 import pm.mbo.license.model.meta.AbstractEntity;
 
 import javax.persistence.NoResultException;
@@ -9,28 +8,32 @@ import java.io.Serializable;
 
 public class Repository<ID extends Serializable, T extends AbstractEntity<ID>> {
 
-    protected final Log log;
-    protected final EntityManagerDelegate em;
+    protected final EntityManagerDelegate emd;
 
-    public Repository(final Log log, final EntityManagerDelegate em) {
-        this.log = log;
-        this.em = em;
+    public Repository(final EntityManagerDelegate emd) {
+        if (null == emd) {
+            throw new IllegalStateException("emd must not be null");
+        }
+        this.emd = emd;
     }
 
     public T merge(T t) {
-        return em.merge(t);
+        return emd.merge(t);
     }
 
     public void begin() {
-        em.begin();
+        emd.begin();
     }
 
     public void commit() {
-        em.commit();
+        emd.commit();
     }
 
     public <R> R findSingle(final QueryDefinition<R> definition) {
-        final TypedQuery<R> query = em.createNamedQuery(definition.getQueryName(), definition.getResultClass());
+        if(null == definition) {
+            throw new IllegalArgumentException("definition must not be null");
+        }
+        final TypedQuery<R> query = emd.createNamedQuery(definition.getQueryName(), definition.getResultClass());
         definition.setParameters(query);
         try {
             return query.getSingleResult();
@@ -43,7 +46,7 @@ public class Repository<ID extends Serializable, T extends AbstractEntity<ID>> {
         R result = findSingle(definition);
         if (null == result) {
             result = definition.newEntry();
-            em.persist(result);
+            emd.persist(result);
         }
         return result;
     }

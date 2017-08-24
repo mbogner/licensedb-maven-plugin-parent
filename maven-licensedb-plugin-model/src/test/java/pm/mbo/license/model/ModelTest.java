@@ -30,7 +30,7 @@ public class ModelTest extends DatabaseTest {
     @Test
     public void testEntities() {
         for (EntityType<?> entityType : emf.getMetamodel().getEntities()) {
-            EntityTestUtil.checkEntity(entityType.getJavaType());
+            new EntityTestUtil().checkBean(entityType.getJavaType());
         }
 
     }
