@@ -11,20 +11,12 @@ import org.codehaus.mojo.license.AddThirdPartyMojo;
 import org.codehaus.mojo.license.model.LicenseMap;
 import pm.mbo.license.model.project.ArtifactModuleMapping;
 import pm.mbo.license.model.project.Module;
+import pm.mbo.license.model.project.Project;
+import pm.mbo.license.model.project.Version;
 import pm.mbo.license.model.variation.ArtifactLicenseVariationMapping;
 import pm.mbo.license.model.variation.LicenseVariation;
 import pm.mbo.license.mojo.dal.EntityManagerDelegate;
-import pm.mbo.license.mojo.dal.artifact.ArtifactRepository;
-import pm.mbo.license.mojo.dal.artifact.query.FindArtifactByMavenCoordinatesQuery;
-import pm.mbo.license.mojo.dal.project.ArtifactModuleMappingRepository;
-import pm.mbo.license.mojo.dal.project.ModuleRepository;
-import pm.mbo.license.mojo.dal.project.ProjectRepository;
-import pm.mbo.license.mojo.dal.project.VersionRepository;
-import pm.mbo.license.mojo.dal.project.query.FindArtifactModuleMappingByForeignKeysQuery;
-import pm.mbo.license.mojo.dal.variation.ArtifactLicenseVariationMappingRepository;
-import pm.mbo.license.mojo.dal.variation.LicenseVariationRepository;
-import pm.mbo.license.mojo.dal.variation.query.FindArtifactLicenseVariationMappingByForeignKeysQuery;
-import pm.mbo.license.mojo.dal.variation.query.FindLicenseVariationByNameQuery;
+import pm.mbo.license.mojo.dal.Repository;
 import pm.mbo.license.mojo.metadata.ArtifactMetadata;
 import pm.mbo.license.mojo.metadata.ProjectMetadata;
 
@@ -76,15 +68,15 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
 
     private final Log log = getLog();
 
-    private ProjectRepository projectRepository;
-    private VersionRepository versionRepository;
-    private ModuleRepository moduleRepository;
+    private Repository<Long, Project> projectRepository;
+    private Repository<Long, Version> versionRepository;
+    private Repository<Long, Module> moduleRepository;
 
-    private ArtifactRepository artifactRepository;
-    private ArtifactModuleMappingRepository artifactModuleMappingRepository;
+    private Repository<Long, pm.mbo.license.model.artifact.Artifact> artifactRepository;
+    private Repository<Long, ArtifactModuleMapping> artifactModuleMappingRepository;
 
-    private LicenseVariationRepository licenseVariationRepository;
-    private ArtifactLicenseVariationMappingRepository variationMappingRepository;
+    private Repository<Long, LicenseVariation> licenseVariationRepository;
+    private Repository<Long, ArtifactLicenseVariationMapping> variationMappingRepository;
 
     private Module module;
 
@@ -116,7 +108,7 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
                     em.begin();
                     initRepos(em);
 
-                    PersistenceHelper.persistProjectStructure(
+                    module = PersistenceHelper.persistProjectStructure(
                             projectRepository,
                             versionRepository,
                             moduleRepository,
@@ -147,65 +139,27 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
 
     protected void initRepos(final EntityManagerDelegate em) {
         log.debug("initialize repos");
-        projectRepository = new ProjectRepository(log, em);
-        versionRepository = new VersionRepository(log, em);
-        moduleRepository = new ModuleRepository(log, em);
+        projectRepository = new Repository<>(log, em);
+        versionRepository = new Repository<>(log, em);
+        moduleRepository = new Repository<>(log, em);
 
-        artifactRepository = new ArtifactRepository(log, em);
-        artifactModuleMappingRepository = new ArtifactModuleMappingRepository(log, em);
+        artifactRepository = new Repository<>(log, em);
+        artifactModuleMappingRepository = new Repository<>(log, em);
 
-        licenseVariationRepository = new LicenseVariationRepository(log, em);
-        variationMappingRepository = new ArtifactLicenseVariationMappingRepository(log, em);
+        licenseVariationRepository = new Repository<>(log, em);
+        variationMappingRepository = new Repository<>(log, em);
     }
 
     protected void processDependecy(final String licenseString, final MavenProject mavenProject, final ArtifactMetadata metadata) {
         String coordinates = MavenUtil.getMavenProjectCoordinates(mavenProject);
         log.info(String.format(" => %s:%s:%s", coordinates, metadata.getScope(), metadata.getType()));
         if (!dryRun) {
-            final pm.mbo.license.model.artifact.Artifact artifact = persistDependency(mavenProject, coordinates, metadata);
-            final LicenseVariation licenseVariation = persistLicenseVariation(licenseString);
+            final pm.mbo.license.model.artifact.Artifact artifact = PersistenceHelper.persistDependency(artifactRepository, mavenProject, coordinates, metadata);
+            final LicenseVariation licenseVariation = PersistenceHelper.persistLicenseVariation(licenseVariationRepository, licenseString);
 
-            persistArtifactLicenseVariationMapping(artifact, licenseVariation);
-            persistArtifactModuleMapping(artifact);
+            PersistenceHelper.persistArtifactLicenseVariationMapping(variationMappingRepository, artifact, licenseVariation);
+            PersistenceHelper.persistArtifactModuleMapping(artifactModuleMappingRepository, artifact, module);
         }
-    }
-
-    protected void persistArtifactModuleMapping(final pm.mbo.license.model.artifact.Artifact artifact) {
-        final ArtifactModuleMapping artifactModuleMapping = new ArtifactModuleMapping();
-        artifactModuleMapping.setModule(module);
-        artifactModuleMapping.setArtifact(artifact);
-        artifactModuleMappingRepository.findOrCreate(new FindArtifactModuleMappingByForeignKeysQuery(artifactModuleMapping));
-    }
-
-    protected void persistArtifactLicenseVariationMapping(final pm.mbo.license.model.artifact.Artifact artifact,
-                                                          final LicenseVariation licenseVariation) {
-        final ArtifactLicenseVariationMapping artifactLicenseVariationMapping = new ArtifactLicenseVariationMapping();
-        artifactLicenseVariationMapping.setArtifact(artifact);
-        artifactLicenseVariationMapping.setLicenseVariation(licenseVariation);
-        variationMappingRepository.findOrCreate(
-                new FindArtifactLicenseVariationMappingByForeignKeysQuery(artifactLicenseVariationMapping));
-    }
-
-    protected LicenseVariation persistLicenseVariation(final String licenseString) {
-        final LicenseVariation variation = new LicenseVariation();
-        variation.setName(licenseString);
-
-        return licenseVariationRepository.findOrCreate(new FindLicenseVariationByNameQuery(variation));
-    }
-
-    protected pm.mbo.license.model.artifact.Artifact persistDependency(final MavenProject mavenProject, final String coordinates, final ArtifactMetadata metadata) {
-        pm.mbo.license.model.artifact.Artifact artifact = new pm.mbo.license.model.artifact.Artifact();
-
-        artifact.setMavenGroupId(mavenProject.getGroupId());
-        artifact.setMavenArtifactId(mavenProject.getArtifactId());
-        artifact.setMavenVersion(mavenProject.getVersion());
-
-        artifact.setMavenCoordinates(coordinates);
-
-        artifact.setMavenScope(metadata.getScope());
-        artifact.setMavenType(metadata.getType());
-
-        return artifactRepository.findOrCreate(new FindArtifactByMavenCoordinatesQuery(artifact));
     }
 
     protected Map<String, String> createHibernateProperties() {

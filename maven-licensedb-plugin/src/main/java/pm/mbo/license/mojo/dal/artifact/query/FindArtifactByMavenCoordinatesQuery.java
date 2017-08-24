@@ -22,4 +22,9 @@ public class FindArtifactByMavenCoordinatesQuery extends QueryDefinition<Artifac
     public Artifact newEntry() {
         return artifact;
     }
+
+    @Override
+    public Class<Artifact> getResultClass() {
+        return Artifact.class;
+    }
 }

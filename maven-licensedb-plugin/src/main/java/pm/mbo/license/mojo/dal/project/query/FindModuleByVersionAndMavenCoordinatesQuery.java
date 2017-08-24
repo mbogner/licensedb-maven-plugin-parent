@@ -24,4 +24,9 @@ public class FindModuleByVersionAndMavenCoordinatesQuery extends QueryDefinition
     public Module newEntry() {
         return module;
     }
+
+    @Override
+    public Class<Module> getResultClass() {
+        return Module.class;
+    }
 }

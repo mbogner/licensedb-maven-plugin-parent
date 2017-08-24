@@ -22,4 +22,9 @@ public class FindProjectByNameQuery extends QueryDefinition<Project> {
     public Project newEntry() {
         return project;
     }
+
+    @Override
+    public Class<Project> getResultClass() {
+        return Project.class;
+    }
 }

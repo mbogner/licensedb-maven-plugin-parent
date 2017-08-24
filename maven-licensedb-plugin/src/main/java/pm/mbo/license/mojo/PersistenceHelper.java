@@ -1,24 +1,31 @@
 package pm.mbo.license.mojo;
 
 import org.apache.maven.project.MavenProject;
+import pm.mbo.license.model.artifact.Artifact;
+import pm.mbo.license.model.project.ArtifactModuleMapping;
 import pm.mbo.license.model.project.Module;
 import pm.mbo.license.model.project.Project;
 import pm.mbo.license.model.project.Version;
-import pm.mbo.license.mojo.dal.project.ModuleRepository;
-import pm.mbo.license.mojo.dal.project.ProjectRepository;
-import pm.mbo.license.mojo.dal.project.VersionRepository;
+import pm.mbo.license.model.variation.ArtifactLicenseVariationMapping;
+import pm.mbo.license.model.variation.LicenseVariation;
+import pm.mbo.license.mojo.dal.Repository;
+import pm.mbo.license.mojo.dal.artifact.query.FindArtifactByMavenCoordinatesQuery;
+import pm.mbo.license.mojo.dal.project.query.FindArtifactModuleMappingByForeignKeysQuery;
 import pm.mbo.license.mojo.dal.project.query.FindModuleByVersionAndMavenCoordinatesQuery;
 import pm.mbo.license.mojo.dal.project.query.FindProjectByNameQuery;
 import pm.mbo.license.mojo.dal.project.query.FindVersionByProjectAndNameQuery;
+import pm.mbo.license.mojo.dal.variation.query.FindArtifactLicenseVariationMappingByForeignKeysQuery;
+import pm.mbo.license.mojo.dal.variation.query.FindLicenseVariationByNameQuery;
+import pm.mbo.license.mojo.metadata.ArtifactMetadata;
 import pm.mbo.license.mojo.metadata.ProjectMetadata;
 
 import java.util.Calendar;
 
-public final class PersistenceHelper {
+public class PersistenceHelper {
 
-    protected static Module persistProjectStructure(final ProjectRepository projectRepository,
-                                                    final VersionRepository versionRepository,
-                                                    final ModuleRepository moduleRepository,
+    protected static Module persistProjectStructure(final Repository<Long, Project> projectRepository,
+                                                    final Repository<Long, Version> versionRepository,
+                                                    final Repository<Long, Module> moduleRepository,
                                                     final ProjectMetadata projectMetadata,
                                                     final MavenProject mavenProject) {
         final Project project = persistProject(projectMetadata, projectRepository);
@@ -26,7 +33,7 @@ public final class PersistenceHelper {
         return persistModule(moduleRepository, mavenProject, version);
     }
 
-    private static Module persistModule(final ModuleRepository moduleRepository, final MavenProject mavenProject, final Version version) {
+    protected static Module persistModule(final Repository<Long, Module> moduleRepository, final MavenProject mavenProject, final Version version) {
         final Module module = new Module();
         module.setVersion(version);
         module.setMavenGroupId(mavenProject.getGroupId());
@@ -37,7 +44,7 @@ public final class PersistenceHelper {
         return moduleRepository.findOrCreate(new FindModuleByVersionAndMavenCoordinatesQuery(module));
     }
 
-    private static Version persistVersion(final VersionRepository versionRepository, final MavenProject mavenProject, final Project project) {
+    protected static Version persistVersion(final Repository<Long, Version> versionRepository, final MavenProject mavenProject, final Project project) {
         Version version = new Version();
         version.setProject(project);
         version.setName(mavenProject.getVersion());
@@ -45,7 +52,7 @@ public final class PersistenceHelper {
         return versionRepository.findOrCreate(new FindVersionByProjectAndNameQuery(version));
     }
 
-    private static Project persistProject(final ProjectMetadata projectMetadata, final ProjectRepository projectRepository) {
+    protected static Project persistProject(final ProjectMetadata projectMetadata, final Repository<Long, Project> projectRepository) {
         Project project = new Project();
         project.setKey(projectMetadata.getProjectId());
         project.setName(projectMetadata.getProjectName());
@@ -59,8 +66,49 @@ public final class PersistenceHelper {
         return projectRepository.merge(project);
     }
 
-    private PersistenceHelper() {
-        throw new IllegalAccessError();
+    protected static Artifact persistDependency(final Repository<Long, Artifact> artifactRepository,
+                                                final MavenProject mavenProject,
+                                                final String coordinates,
+                                                final ArtifactMetadata metadata) {
+
+        Artifact artifact = new Artifact();
+
+        artifact.setMavenGroupId(mavenProject.getGroupId());
+        artifact.setMavenArtifactId(mavenProject.getArtifactId());
+        artifact.setMavenVersion(mavenProject.getVersion());
+
+        artifact.setMavenCoordinates(coordinates);
+
+        artifact.setMavenScope(metadata.getScope());
+        artifact.setMavenType(metadata.getType());
+
+        return artifactRepository.findOrCreate(new FindArtifactByMavenCoordinatesQuery(artifact));
     }
 
+    protected static void persistArtifactModuleMapping(final Repository<Long, ArtifactModuleMapping> artifactModuleMappingRepository,
+                                                final Artifact artifact,
+                                                final Module module) {
+        final ArtifactModuleMapping artifactModuleMapping = new ArtifactModuleMapping();
+        artifactModuleMapping.setModule(module);
+        artifactModuleMapping.setArtifact(artifact);
+        artifactModuleMappingRepository.findOrCreate(new FindArtifactModuleMappingByForeignKeysQuery(artifactModuleMapping));
+    }
+
+    protected static void persistArtifactLicenseVariationMapping(final Repository<Long, ArtifactLicenseVariationMapping> variationMappingRepository,
+                                                          final Artifact artifact,
+                                                          final LicenseVariation licenseVariation) {
+        final ArtifactLicenseVariationMapping artifactLicenseVariationMapping = new ArtifactLicenseVariationMapping();
+        artifactLicenseVariationMapping.setArtifact(artifact);
+        artifactLicenseVariationMapping.setLicenseVariation(licenseVariation);
+        variationMappingRepository.findOrCreate(
+                new FindArtifactLicenseVariationMappingByForeignKeysQuery(artifactLicenseVariationMapping));
+    }
+
+    protected static LicenseVariation persistLicenseVariation(final Repository<Long, LicenseVariation> licenseVariationRepository,
+                                                       final String licenseString) {
+        final LicenseVariation variation = new LicenseVariation();
+        variation.setName(licenseString);
+
+        return licenseVariationRepository.findOrCreate(new FindLicenseVariationByNameQuery(variation));
+    }
 }

@@ -22,4 +22,9 @@ public class FindLicenseVariationByNameQuery extends QueryDefinition<LicenseVari
     public LicenseVariation newEntry() {
         return licenseVariation;
     }
+
+    @Override
+    public Class<LicenseVariation> getResultClass() {
+        return LicenseVariation.class;
+    }
 }

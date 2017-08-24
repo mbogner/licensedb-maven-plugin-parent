@@ -10,5 +10,9 @@ public abstract class QueryDefinition<T> {
 
     public abstract void setParameters(final Query query);
 
-    public abstract T newEntry();
+    public T newEntry() {
+        throw new IllegalStateException("not supported");
+    }
+
+    public abstract Class<T> getResultClass();
 }

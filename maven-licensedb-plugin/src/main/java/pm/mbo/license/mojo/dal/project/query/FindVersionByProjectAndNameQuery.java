@@ -23,4 +23,9 @@ public class FindVersionByProjectAndNameQuery extends QueryDefinition<Version> {
     public Version newEntry() {
         return version;
     }
+
+    @Override
+    public Class<Version> getResultClass() {
+        return Version.class;
+    }
 }

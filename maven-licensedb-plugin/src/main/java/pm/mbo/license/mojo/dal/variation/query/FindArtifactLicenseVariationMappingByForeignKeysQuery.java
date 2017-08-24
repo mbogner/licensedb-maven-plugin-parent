@@ -23,4 +23,9 @@ public class FindArtifactLicenseVariationMappingByForeignKeysQuery extends Query
     public ArtifactLicenseVariationMapping newEntry() {
         return artifactLicenseVariationMapping;
     }
+
+    @Override
+    public Class<ArtifactLicenseVariationMapping> getResultClass() {
+        return ArtifactLicenseVariationMapping.class;
+    }
 }

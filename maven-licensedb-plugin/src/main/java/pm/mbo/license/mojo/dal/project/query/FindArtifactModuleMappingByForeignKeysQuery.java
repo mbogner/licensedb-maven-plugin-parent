@@ -23,4 +23,9 @@ public class FindArtifactModuleMappingByForeignKeysQuery extends QueryDefinition
     public ArtifactModuleMapping newEntry() {
         return artifactModuleMapping;
     }
+
+    @Override
+    public Class<ArtifactModuleMapping> getResultClass() {
+        return ArtifactModuleMapping.class;
+    }
 }

@@ -7,17 +7,15 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.io.Serializable;
 
-public abstract class AbstractRepository<ID extends Serializable, T extends AbstractEntity<ID>> {
+public class Repository<ID extends Serializable, T extends AbstractEntity<ID>> {
 
     protected final Log log;
     protected final EntityManagerDelegate em;
 
-    public AbstractRepository(final Log log, final EntityManagerDelegate em) {
+    public Repository(final Log log, final EntityManagerDelegate em) {
         this.log = log;
         this.em = em;
     }
-
-    protected abstract Class<T> getManagedClass();
 
     public T merge(T t) {
         return em.merge(t);
@@ -31,8 +29,8 @@ public abstract class AbstractRepository<ID extends Serializable, T extends Abst
         em.commit();
     }
 
-    public T findSingle(final QueryDefinition<T> definition) {
-        final TypedQuery<T> query = em.createNamedQuery(definition.getQueryName(), getManagedClass());
+    public <R> R findSingle(final QueryDefinition<R> definition) {
+        final TypedQuery<R> query = em.createNamedQuery(definition.getQueryName(), definition.getResultClass());
         definition.setParameters(query);
         try {
             return query.getSingleResult();
@@ -41,8 +39,8 @@ public abstract class AbstractRepository<ID extends Serializable, T extends Abst
         }
     }
 
-    public T findOrCreate(final QueryDefinition<T> definition) {
-        T result = findSingle(definition);
+    public <R> R findOrCreate(final QueryDefinition<R> definition) {
+        R result = findSingle(definition);
         if (null == result) {
             result = definition.newEntry();
             em.persist(result);
