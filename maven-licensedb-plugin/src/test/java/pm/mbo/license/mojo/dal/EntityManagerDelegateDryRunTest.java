@@ -122,6 +122,16 @@ public class EntityManagerDelegateDryRunTest {
     }
 
     @Test
+    public void createUntypedNamedQuery() throws Exception {
+        assertNull(emd.createNamedQuery("asd"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createUntypedNamedQuery_null() throws Exception {
+        emd.createNamedQuery(null);
+    }
+
+    @Test
     public void close() throws Exception {
         emd.close();
     }
