@@ -1,4 +1,4 @@
-# license-maven-plugin
+# licensedb-maven-plugin
 
 This is a fork of the original license-maven-plugin that allows you to insert license data into a database.
 
