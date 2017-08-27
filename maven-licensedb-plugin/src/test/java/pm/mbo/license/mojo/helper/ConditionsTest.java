@@ -1,9 +1,9 @@
 package pm.mbo.license.mojo.helper;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.junit.Test;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public class ConditionsTest {
 
@@ -59,12 +59,20 @@ public class ConditionsTest {
 
     @Test
     public void inList() throws Exception {
-        Conditions.inList("bla", "value", new HashSet<String>(Arrays.asList(new String[]{"a", "value"})));
+        final Set<String> set = new HashSet<>();
+        set.add("a");
+        set.add("value");
+
+        Conditions.inList("bla", "value", set);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void inList_notInList() throws Exception {
-        Conditions.inList("bla", "value", new HashSet<String>(Arrays.asList(new String[]{"a", "b"})));
+        final Set<String> set = new HashSet<>();
+        set.add("a");
+        set.add("b");
+
+        Conditions.inList("bla", "value", set);
     }
 
     @Test(expected = IllegalArgumentException.class)

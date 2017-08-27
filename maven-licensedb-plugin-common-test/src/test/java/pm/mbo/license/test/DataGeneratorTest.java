@@ -8,8 +8,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.*;
 
 public class DataGeneratorTest {
 
@@ -52,4 +52,10 @@ public class DataGeneratorTest {
     public void createRandomLong() throws Exception {
         assertNotNull(DataGenerator.createRandomLong());
     }
+
+    @Test
+    public void createEnumInstanceOf() {
+        assertThat(DataGenerator.createEnumInstanceOf(SomeEnum.class), equalTo(SomeEnum.BLA));
+    }
+
 }

@@ -7,6 +7,6 @@ public enum Scope {
     RUNTIME,
     TEST,
     SYSTEM,
-    IMPORT;
+    IMPORT
 
 }

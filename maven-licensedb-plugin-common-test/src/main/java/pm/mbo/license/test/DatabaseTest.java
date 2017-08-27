@@ -24,7 +24,7 @@ public abstract class DatabaseTest {
     protected static EntityManager em;
 
     @Rule
-    public TestName testName = new TestName();
+    public final TestName testName = new TestName();
 
     /**
      * Use this method in @BeforeClass.
@@ -93,7 +93,7 @@ public abstract class DatabaseTest {
     }
 
 
-    public static Properties getDefaultProperties(final int databasePort) {
+    protected static Properties getDefaultProperties(final int databasePort) {
         NetworkTool.checkPort(databasePort);
 
         final String connectionString = DatabaseTool.createConnectionString(databasePort);

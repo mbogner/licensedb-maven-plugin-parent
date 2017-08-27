@@ -13,7 +13,7 @@ public class EntityManagerDelegateDryRunTest {
 
     @Before
     public void setUp() {
-        emd = new EntityManagerDelegate(true, Collections.EMPTY_MAP);
+        emd = new EntityManagerDelegate(true, Collections.emptyMap());
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -1,6 +1,5 @@
 package pm.mbo.license.mojo.dal;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import pm.mbo.license.mojo.helper.Conditions;
 
@@ -11,13 +10,15 @@ import java.util.Set;
 
 public class HibernateConfigBuilder {
 
-    private static final Set<String> HBM2DDL_VALUES = new HashSet<String>(Arrays.asList(new String[]{
-            "update",
-            "create",
-            "create-drop",
-            "validate",
-            ""
-    }));
+    private static final Set<String> HBM2DDL_VALUES = new HashSet<>(5);
+
+    static {
+        HBM2DDL_VALUES.add("update");
+        HBM2DDL_VALUES.add("create");
+        HBM2DDL_VALUES.add("create-drop");
+        HBM2DDL_VALUES.add("validate");
+        HBM2DDL_VALUES.add("");
+    }
 
     private String databaseUrl;
 

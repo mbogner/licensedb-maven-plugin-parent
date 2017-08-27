@@ -8,6 +8,7 @@ import java.util.*;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 
+@SuppressWarnings("WeakerAccess")
 public final class DataGenerator {
 
     public static <T> Object createInstanceOf(final Class<T> type) throws IllegalAccessException, InstantiationException {
@@ -70,7 +71,7 @@ public final class DataGenerator {
     public static Object createEnumInstanceOf(final Class<?> type) {
         assertNotNull(type);
         assertTrue(type.isEnum());
-        final Enum[] constants = ((Class<Enum>) type).getEnumConstants();
+        @SuppressWarnings("unchecked") final Enum[] constants = ((Class<Enum>) type).getEnumConstants();
         assertThat(constants.length, greaterThan(0));
         return constants[0];
     }

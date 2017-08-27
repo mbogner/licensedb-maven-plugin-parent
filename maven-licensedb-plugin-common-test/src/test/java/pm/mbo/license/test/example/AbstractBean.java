@@ -13,14 +13,14 @@ public abstract class AbstractBean implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @SuppressWarnings("EmptyMethod")
     @PreUpdate
     private void preMerge() {
-
     }
 
+    @SuppressWarnings("EmptyMethod")
     @PrePersist
     private void prePersist() {
-
     }
 
 }

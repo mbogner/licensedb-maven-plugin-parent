@@ -9,7 +9,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,10 +19,14 @@ public class BeanTestUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(BeanTestUtil.class);
 
-    private static final List<Class<? extends Annotation>> DEFAULT_REQUIRED_ANNOTATIONS = Collections.EMPTY_LIST;
+    private static final List<Class<? extends Annotation>> DEFAULT_REQUIRED_ANNOTATIONS = Collections.emptyList();
 
-    private static final List<String> PRIVATE_METHODS = Arrays.asList();
-    private static final List<String> PROTECTED_METHODS = Arrays.asList("canEqual");
+    private static final List<String> PRIVATE_METHODS = Collections.emptyList();
+    private static final List<String> PROTECTED_METHODS = new ArrayList<>(1);
+
+    static {
+        PROTECTED_METHODS.add("canEqual");
+    }
 
     public <T> void checkBean(final Class<T> clazz) {
         checkBean(clazz, getRequiredAnnotations());
@@ -72,7 +75,7 @@ public class BeanTestUtil {
     }
 
     protected List<Class<? extends Annotation>> getPrivateMethodAnnotations() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     protected <T> void checkMethods(final Class<T> clazz, final List<Method> methods) {
@@ -145,7 +148,7 @@ public class BeanTestUtil {
         final Method equals = Reflection.findExistingMethodByNameAndParams("equals", methods, Object.class);
         assertTrue((Boolean) equals.invoke(instance, instance));
         assertFalse((Boolean) equals.invoke(instance, new Object[]{null}));
-        assertFalse((Boolean) equals.invoke(instance, new Object[]{new String()}));
+        assertFalse((Boolean) equals.invoke(instance, new Object[]{"asd"}));
     }
 
     protected <T> Object callMethod(final String name, final List<Method> methods, final T instance) throws InvocationTargetException, IllegalAccessException {

@@ -37,7 +37,7 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
     @Parameter(property = "licensedb.databaseUser", defaultValue = "sa")
     private String databaseUser;
 
-    @Parameter(property = "licensedb.databasePassword", defaultValue = "")
+    @Parameter(property = "licensedb.databasePassword")
     private String databasePassword;
 
     @Parameter(property = "licensedb.databaseDriverClass", defaultValue = "org.h2.Driver")

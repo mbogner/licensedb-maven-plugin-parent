@@ -21,10 +21,9 @@ public final class NetworkTool {
         }
     }
 
-    public static int checkPort(final int port) {
-        if (port < 0 || port > 0xFFFF)
+    public static void checkPort(final int port) {
+        if (port < PORT_MIN || port > PORT_MAX)
             throw new IllegalArgumentException("port out of range:" + port);
-        return port;
     }
 
     private NetworkTool() {

@@ -15,7 +15,7 @@ public final class DatabaseTool {
         return startDatabase(NetworkTool.findRandomOpenPortOnAllLocalInterfaces());
     }
 
-    public static int startDatabase(final int port) throws IOException, SQLException {
+    public static int startDatabase(final int port) throws SQLException {
         Server.createTcpServer("-tcpPort", String.valueOf(port), "-tcpAllowOthers").start();
         LOG.trace("created server on port {}", port);
         return port;

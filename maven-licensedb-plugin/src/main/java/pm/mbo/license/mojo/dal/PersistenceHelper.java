@@ -55,7 +55,7 @@ public class PersistenceHelper {
         return persistModule(mavenProject, version);
     }
 
-    public Module persistModule(final MavenProject mavenProject, final Version version) {
+    private Module persistModule(final MavenProject mavenProject, final Version version) {
         checkInit();
         final Module module = new Module();
         module.setVersion(version);
@@ -67,7 +67,7 @@ public class PersistenceHelper {
         return moduleRepository.findOrCreate(new FindModuleByVersionAndMavenCoordinatesQuery(module));
     }
 
-    public Version persistVersion(final MavenProject mavenProject, final Project project) {
+    private Version persistVersion(final MavenProject mavenProject, final Project project) {
         checkInit();
         Version version = new Version();
         version.setProject(project);
@@ -76,7 +76,7 @@ public class PersistenceHelper {
         return versionRepository.findOrCreate(new FindVersionByProjectAndNameQuery(version));
     }
 
-    public Project persistProject(final ProjectMetadata projectMetadata) {
+    private Project persistProject(final ProjectMetadata projectMetadata) {
         checkInit();
         Project project = new Project();
         project.setKey(projectMetadata.getProjectId());
@@ -138,7 +138,7 @@ public class PersistenceHelper {
         return moduleRepository.executeUpdate(new RemoveAllArtifactModuleMappingsOfModuleQuery(module));
     }
 
-    protected void checkInit() {
+    private void checkInit() {
         if (needsInit) {
             throw new IllegalStateException("call initRepos before calling other methods");
         }
