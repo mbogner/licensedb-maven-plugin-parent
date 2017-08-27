@@ -39,6 +39,12 @@
         </query>
     </named-query>
 
+    <named-query name="pm.mbo.license.mojo.dal.project.query.RemoveAllArtifactModuleMappingsOfModuleQuery">
+        <query>
+            DELETE FROM ArtifactModuleMapping m WHERE m.module.id=:module_id
+        </query>
+    </named-query>
+
     <named-query name="pm.mbo.license.mojo.dal.variation.query.FindArtifactLicenseVariationMappingByForeignKeysQuery">
         <query>
             SELECT m FROM ArtifactLicenseVariationMapping m

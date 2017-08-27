@@ -122,6 +122,8 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
                         projectMetadata,
                         getProject()
                 );
+                final int removedMappings = persistenceHelper.removeArtifactModuleMappingsOf(module);
+                log.info(String.format("removed %d old mappings", removedMappings));
             }
 
             final LicenseMap licenseMap = getLicenseMap();
@@ -156,7 +158,7 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
     }
 
     protected Map<String, String> createHibernateProperties() {
-        if(null == databasePassword) {
+        if (null == databasePassword) {
             databasePassword = "";
         }
         final HibernateConfigBuilder hibernateConfigBuilder = HibernateConfigBuilder.builder()

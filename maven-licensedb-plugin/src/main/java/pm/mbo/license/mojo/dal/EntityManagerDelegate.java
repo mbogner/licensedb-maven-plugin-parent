@@ -4,10 +4,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import pm.mbo.license.mojo.helper.Conditions;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import java.io.Closeable;
 import java.util.Map;
 
@@ -90,6 +87,14 @@ public class EntityManagerDelegate implements Closeable {
         Conditions.notNull("resultType", resultType);
         if (useEm) {
             return em.createNamedQuery(queryName, resultType);
+        }
+        return null;
+    }
+
+    public Query createNamedQuery(final String queryName) {
+        Conditions.notNull("queryName", queryName);
+        if (useEm) {
+            return em.createNamedQuery(queryName);
         }
         return null;
     }

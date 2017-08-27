@@ -4,6 +4,7 @@ import pm.mbo.license.model.meta.AbstractEntity;
 import pm.mbo.license.mojo.helper.Conditions;
 
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.io.Serializable;
 
@@ -47,5 +48,12 @@ public class Repository<ID extends Serializable, T extends AbstractEntity<ID>> {
             emd.persist(result);
         }
         return result;
+    }
+
+    public int executeUpdate(final QueryDefinition<Integer> definition) {
+        Conditions.notNull("definition", definition);
+        final Query query = emd.createNamedQuery(definition.getQueryName());
+        definition.setParameters(query);
+        return query.executeUpdate();
     }
 }

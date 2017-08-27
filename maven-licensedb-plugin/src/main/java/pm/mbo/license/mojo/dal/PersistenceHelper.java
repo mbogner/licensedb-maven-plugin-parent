@@ -10,10 +10,7 @@ import pm.mbo.license.model.project.Version;
 import pm.mbo.license.model.variation.ArtifactLicenseVariationMapping;
 import pm.mbo.license.model.variation.LicenseVariation;
 import pm.mbo.license.mojo.dal.artifact.query.FindArtifactByMavenCoordinatesQuery;
-import pm.mbo.license.mojo.dal.project.query.FindArtifactModuleMappingByForeignKeysQuery;
-import pm.mbo.license.mojo.dal.project.query.FindModuleByVersionAndMavenCoordinatesQuery;
-import pm.mbo.license.mojo.dal.project.query.FindProjectByNameQuery;
-import pm.mbo.license.mojo.dal.project.query.FindVersionByProjectAndNameQuery;
+import pm.mbo.license.mojo.dal.project.query.*;
 import pm.mbo.license.mojo.dal.variation.query.FindArtifactLicenseVariationMappingByForeignKeysQuery;
 import pm.mbo.license.mojo.dal.variation.query.FindLicenseVariationByNameQuery;
 import pm.mbo.license.mojo.helper.Conditions;
@@ -135,6 +132,10 @@ public class PersistenceHelper {
         variation.setName(licenseString);
 
         return licenseVariationRepository.findOrCreate(new FindLicenseVariationByNameQuery(variation));
+    }
+
+    public int removeArtifactModuleMappingsOf(final Module module) {
+        return moduleRepository.executeUpdate(new RemoveAllArtifactModuleMappingsOfModuleQuery(module));
     }
 
     protected void checkInit() {
