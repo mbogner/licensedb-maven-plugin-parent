@@ -2,9 +2,7 @@ package pm.mbo.license.test;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,7 +15,6 @@ public final class Reflection {
         try {
             return clazz.getDeclaredConstructor(params);
         } catch (NoSuchMethodException e) {
-            fail(e.getMessage());
             throw new IllegalStateException(e);
         }
     }
@@ -97,6 +94,22 @@ public final class Reflection {
     public static String getGetterNameFor(final Field field) {
         assertNotNull(field);
         return String.format("get%s", StringUtils.capitalize(field.getName()));
+    }
+
+    public static <T> T callPrivateDefaultConstructor(final Class<T> clazz) throws Throwable {
+        final Constructor<T> constructor = clazz.getDeclaredConstructor();
+        if (!Modifier.isPrivate(constructor.getModifiers()) &&
+                !Modifier.isProtected(constructor.getModifiers())) {
+            fail("constructor has to be private or package private");
+        }
+        constructor.setAccessible(true);
+        try {
+            return constructor.newInstance();
+        } catch (final InstantiationException | IllegalAccessException e) {
+            throw e;
+        } catch (final InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 
     private Reflection() {

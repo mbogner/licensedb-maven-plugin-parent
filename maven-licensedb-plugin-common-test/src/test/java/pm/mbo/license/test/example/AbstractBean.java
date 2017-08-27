@@ -23,4 +23,8 @@ public abstract class AbstractBean implements Serializable {
     private void prePersist() {
     }
 
+    protected void someMethod() {
+        // do nothing
+    }
+
 }

@@ -15,4 +15,29 @@ public class NetworkToolTest {
         assertThat(port, lessThanOrEqualTo(NetworkTool.PORT_MAX));
     }
 
+    @Test(expected = IllegalAccessError.class)
+    public void testNetworkTool() throws Throwable {
+        Reflection.callPrivateDefaultConstructor(NetworkTool.class);
+    }
+
+    @Test
+    public void testCheckPort_low() {
+        NetworkTool.checkPort(1);
+    }
+
+    @Test
+    public void testCheckPort_high() {
+        NetworkTool.checkPort(65535);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCheckPort_tooLittle() {
+        NetworkTool.checkPort(0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCheckPort_tooBig() {
+        NetworkTool.checkPort(65536);
+    }
+
 }

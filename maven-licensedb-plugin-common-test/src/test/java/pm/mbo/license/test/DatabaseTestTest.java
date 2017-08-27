@@ -6,6 +6,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.sql.SQLException;
+
 public class DatabaseTestTest extends DatabaseTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseTestTest.class);
@@ -30,6 +33,11 @@ public class DatabaseTestTest extends DatabaseTest {
     @Test
     public void testSomething2() {
         LOG.info("someTest2");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void initTwice() throws IOException, SQLException {
+        DatabaseTest.initDatabaseTest();
     }
 
 }

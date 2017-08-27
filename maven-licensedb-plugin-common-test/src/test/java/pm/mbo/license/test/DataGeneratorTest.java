@@ -5,6 +5,7 @@ import pm.mbo.license.test.example.SomeEnum;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ public class DataGeneratorTest {
     public void createInstanceOf_KnownTypes() throws Exception {
         final Class<?>[] classes = {
                 String.class, Integer.class, BigDecimal.class, Double.class, Calendar.class, StringBuffer.class,
-                SomeEnum.class, List.class, Set.class, Long.class
+                SomeEnum.class, List.class, Set.class, Long.class, Date.class
         };
 
         for (final Class<?> aClass : classes) {
@@ -56,6 +57,11 @@ public class DataGeneratorTest {
     @Test
     public void createEnumInstanceOf() {
         assertThat(DataGenerator.createEnumInstanceOf(SomeEnum.class), equalTo(SomeEnum.BLA));
+    }
+
+    @Test(expected = IllegalAccessError.class)
+    public void testDataGenerator() throws Throwable {
+        Reflection.callPrivateDefaultConstructor(DataGenerator.class);
     }
 
 }

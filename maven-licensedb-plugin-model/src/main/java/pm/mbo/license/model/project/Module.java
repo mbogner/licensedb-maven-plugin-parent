@@ -46,6 +46,9 @@ public class Module extends AbstractEntity<Long> {
     private List<ArtifactModuleMapping> artifactModuleMappings;
 
     public String createFullCoordinates() {
+        if(null == version || null == version.getProject()) {
+            throw new IllegalStateException("version and version.project have to be set");
+        }
         return String.format("%s:%s:%s:%s",
                 version.getProject().getName(),
                 mavenGroupId,

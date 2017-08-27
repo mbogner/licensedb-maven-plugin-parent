@@ -19,13 +19,10 @@ public class BeanTestUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(BeanTestUtil.class);
 
-    private static final List<Class<? extends Annotation>> DEFAULT_REQUIRED_ANNOTATIONS = Collections.emptyList();
-
-    private static final List<String> PRIVATE_METHODS = Collections.emptyList();
-    private static final List<String> PROTECTED_METHODS = new ArrayList<>(1);
+    private static final List<String> DEFAULT_PROTECTED_METHODS = new ArrayList<>(1);
 
     static {
-        PROTECTED_METHODS.add("canEqual");
+        DEFAULT_PROTECTED_METHODS.add("canEqual");
     }
 
     public <T> void checkBean(final Class<T> clazz) {
@@ -49,8 +46,15 @@ public class BeanTestUtil {
             checkGetterSetter(instance, fields, methods);
 
             // check some specific methods
-            assertEquals(callMethod("toString", methods, instance), callMethod("toString", methods, instance));
-            assertEquals(callMethod("hashCode", methods, instance), callMethod("hashCode", methods, instance));
+
+            final Object toStringResult = callMethod("toString", methods, instance);
+            assertNotNull(toStringResult);
+            assertEquals(toStringResult, callMethod("toString", methods, instance));
+
+            final Object hashCodeResult = callMethod("hashCode", methods, instance);
+            assertNotNull(hashCodeResult);
+            assertEquals(hashCodeResult, callMethod("hashCode", methods, instance));
+
             testEquals(methods, instance);
 
         } catch (final InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -74,11 +78,7 @@ public class BeanTestUtil {
         return false;
     }
 
-    protected List<Class<? extends Annotation>> getPrivateMethodAnnotations() {
-        return Collections.emptyList();
-    }
-
-    protected <T> void checkMethods(final Class<T> clazz, final List<Method> methods) {
+    protected <T> void checkMethods(final Class<T> clazz, final List<Method> methods) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         assertNotNull(clazz);
         assertNotNull(methods);
         assertThat(methods.size(), greaterThan(0));
@@ -89,21 +89,28 @@ public class BeanTestUtil {
             if (methodHasOneOfAnnotations(method, getPrivateMethodAnnotations())) {
                 LOG.trace("{} is a annotated method that has to be private", name);
                 checkPrivate(name, method.getModifiers());
+                callMethod(method, clazz.newInstance());
                 continue;
             }
-
-            if (PRIVATE_METHODS.contains(method.getName())) {
+            if (getPrivateMethods().contains(method.getName())) {
                 LOG.trace("{} has to be private", name);
                 checkPrivate(name, method.getModifiers());
                 continue;
             }
-            if (PROTECTED_METHODS.contains(method.getName())) {
+            if (getProtectedMethods().contains(method.getName())) {
                 LOG.trace("{} has to be protected", name);
                 checkProtected(name, method.getModifiers());
                 continue;
             }
-            LOG.trace("{} has to be public", name);
-            checkPublic(name, method.getModifiers());
+
+            if (method.getName().startsWith("set") ||
+                    method.getName().startsWith("get") ||
+                    method.getName().equals("equals") ||
+                    method.getName().equals("toString") ||
+                    method.getName().equals("hashCode")) {
+                LOG.trace("{} has to be public", name);
+                checkPublic(name, method.getModifiers());
+            }
         }
 
     }
@@ -155,11 +162,17 @@ public class BeanTestUtil {
         assertNotNull(name);
         assertNotNull(methods);
         assertNotNull(instance);
-        LOG.trace("testing {}.{}", instance.getClass().getSimpleName(), name);
-        final Method toString = Reflection.findExistingMethodByNameAndParams(name, methods);
-        final Object result = toString.invoke(instance);
-        assertNotNull(result);
-        return result;
+        return callMethod(Reflection.findExistingMethodByNameAndParams(name, methods), instance);
+    }
+
+    protected <T> Object callMethod(final Method method, final T instance) throws InvocationTargetException, IllegalAccessException {
+        assertNotNull(method);
+        assertNotNull(instance);
+        LOG.trace("testing {}.{}", instance.getClass().getSimpleName(), method.getName());
+        if (!Modifier.isPublic(method.getModifiers())) {
+            method.setAccessible(true);
+        }
+        return method.invoke(instance);
     }
 
     protected <T> void checkGetterSetter(final T instance, final List<Field> fields, final List<Method> methods) throws InvocationTargetException, IllegalAccessException, InstantiationException {
@@ -202,6 +215,18 @@ public class BeanTestUtil {
     }
 
     protected List<Class<? extends Annotation>> getRequiredAnnotations() {
-        return DEFAULT_REQUIRED_ANNOTATIONS;
+        return Collections.emptyList();
+    }
+
+    protected List<String> getPrivateMethods() {
+        return Collections.emptyList();
+    }
+
+    protected List<String> getProtectedMethods() {
+        return DEFAULT_PROTECTED_METHODS;
+    }
+
+    protected List<Class<? extends Annotation>> getPrivateMethodAnnotations() {
+        return Collections.emptyList();
     }
 }

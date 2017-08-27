@@ -33,12 +33,13 @@ public abstract class DatabaseTest {
      * @throws SQLException Problems with database.
      */
     protected static int initDatabaseTest() throws IOException, SQLException {
-        final int databasePort = DatabaseTool.startDatabase();
-        NetworkTool.checkPort(databasePort);
-
         if (null != emf || null != em) {
             fail("already initialized");
         }
+
+        final int databasePort = DatabaseTool.startDatabase();
+        NetworkTool.checkPort(databasePort);
+
         LOG.trace("initialize hibernate");
         emf = Persistence.createEntityManagerFactory("test", getDefaultProperties(databasePort));
         LOG.trace("initialized emf");

@@ -10,8 +10,8 @@ public final class NetworkTool {
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkTool.class);
 
-    public static final int PORT_MIN = 0;
-    public static final int PORT_MAX = (1 << 16) - 1;
+    public static final int PORT_MIN = 1;
+    public static final int PORT_MAX = 0xffff;
 
     public static int findRandomOpenPortOnAllLocalInterfaces() throws IOException {
         try (final ServerSocket socket = new ServerSocket(0)) {
@@ -23,7 +23,7 @@ public final class NetworkTool {
 
     public static void checkPort(final int port) {
         if (port < PORT_MIN || port > PORT_MAX)
-            throw new IllegalArgumentException("port out of range:" + port);
+            throw new IllegalArgumentException(String.format("port out of range (%d-%d): %d", PORT_MIN, PORT_MAX, port));
     }
 
     private NetworkTool() {
