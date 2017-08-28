@@ -15,4 +15,8 @@ public abstract class QueryDefinition<T> {
     }
 
     public abstract Class<T> getResultClass();
+
+    public boolean isUpdate() {
+        return false;
+    }
 }

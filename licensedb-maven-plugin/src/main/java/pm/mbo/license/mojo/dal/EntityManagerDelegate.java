@@ -17,12 +17,20 @@ public class EntityManagerDelegate implements Closeable {
     private EntityManager em;
 
     public EntityManagerDelegate(final boolean dryRun, final Map<String, String> properties) {
-        useEm = !dryRun;
         Conditions.notNull("properties", properties);
+        useEm = !dryRun;
         if (useEm) {
             emf = Persistence.createEntityManagerFactory("mojo", properties);
             em = emf.createEntityManager();
         }
+    }
+
+    public EntityManagerDelegate(final EntityManagerFactory emf, final EntityManager em) {
+        Conditions.notNull("emf", emf);
+        Conditions.notNull("em", em);
+        this.emf = emf;
+        this.em = em;
+        useEm = true;
     }
 
     public void persist(final Object obj) {

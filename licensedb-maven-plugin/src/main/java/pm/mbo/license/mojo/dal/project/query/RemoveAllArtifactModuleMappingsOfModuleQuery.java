@@ -22,4 +22,9 @@ public class RemoveAllArtifactModuleMappingsOfModuleQuery extends QueryDefinitio
     public Class<Integer> getResultClass() {
         return Integer.class;
     }
+
+    @Override
+    public boolean isUpdate() {
+        return true;
+    }
 }

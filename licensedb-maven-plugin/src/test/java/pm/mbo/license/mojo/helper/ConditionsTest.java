@@ -1,6 +1,7 @@
 package pm.mbo.license.mojo.helper;
 
 import org.junit.Test;
+import pm.mbo.license.test.Reflection;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -78,5 +79,10 @@ public class ConditionsTest {
     @Test(expected = IllegalArgumentException.class)
     public void inList_null3() throws Exception {
         Conditions.inList("bla", "value", null);
+    }
+
+    @Test(expected = IllegalAccessError.class)
+    public void testConditions() throws Throwable {
+        Reflection.callPrivateDefaultConstructor(Conditions.class);
     }
 }

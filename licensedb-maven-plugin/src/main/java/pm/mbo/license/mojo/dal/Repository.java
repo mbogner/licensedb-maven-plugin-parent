@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 public class Repository<ID extends Serializable, T extends AbstractEntity<ID>> {
 
-    protected final EntityManagerDelegate emd;
+    private final EntityManagerDelegate emd;
 
     public Repository(final EntityManagerDelegate emd) {
         Conditions.notNull("emd", emd);

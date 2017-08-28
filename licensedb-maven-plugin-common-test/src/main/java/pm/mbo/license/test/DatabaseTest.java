@@ -26,13 +26,17 @@ public abstract class DatabaseTest {
     @Rule
     public final TestName testName = new TestName();
 
+    protected static int initDatabaseTest() throws IOException, SQLException {
+        return initDatabaseTest("test");
+    }
+
     /**
      * Use this method in @BeforeClass.
      *
      * @throws IOException  No network port available.
      * @throws SQLException Problems with database.
      */
-    protected static int initDatabaseTest() throws IOException, SQLException {
+    protected static int initDatabaseTest(final String persistenceUnitName) throws IOException, SQLException {
         if (null != emf || null != em) {
             fail("already initialized");
         }
@@ -41,7 +45,7 @@ public abstract class DatabaseTest {
         NetworkTool.checkPort(databasePort);
 
         LOG.trace("initialize hibernate");
-        emf = Persistence.createEntityManagerFactory("test", getDefaultProperties(databasePort));
+        emf = Persistence.createEntityManagerFactory(persistenceUnitName, getDefaultProperties(databasePort));
         LOG.trace("initialized emf");
         em = emf.createEntityManager();
         LOG.trace("initialize em");

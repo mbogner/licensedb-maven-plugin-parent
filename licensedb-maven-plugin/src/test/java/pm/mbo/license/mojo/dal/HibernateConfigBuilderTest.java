@@ -58,4 +58,9 @@ public class HibernateConfigBuilderTest {
     public void hbm2ddl_invalid() throws Exception {
         HibernateConfigBuilder.builder().hbm2ddl("some");
     }
+
+    @Test
+    public void testToString() throws Exception {
+        assertNotNull(HibernateConfigBuilder.builder().toString());
+    }
 }
