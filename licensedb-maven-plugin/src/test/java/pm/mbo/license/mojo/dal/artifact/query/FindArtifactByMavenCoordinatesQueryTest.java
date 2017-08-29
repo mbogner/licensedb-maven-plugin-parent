@@ -23,7 +23,8 @@ public class FindArtifactByMavenCoordinatesQueryTest
 
     @Override
     protected FindArtifactByMavenCoordinatesQuery loadQueryDefinition() {
-        // TODO
-        return null;
+        final Artifact artifact = new Artifact();
+        artifact.setMavenCoordinates("bla:bla:bla");
+        return new FindArtifactByMavenCoordinatesQuery(artifact);
     }
 }

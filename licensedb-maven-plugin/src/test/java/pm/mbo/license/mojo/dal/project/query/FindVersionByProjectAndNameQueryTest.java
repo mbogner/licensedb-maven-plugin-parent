@@ -2,6 +2,7 @@ package pm.mbo.license.mojo.dal.project.query;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import pm.mbo.license.model.project.Project;
 import pm.mbo.license.model.project.Version;
 import pm.mbo.license.mojo.dal.QueryDefinitionTest;
 import pm.mbo.license.test.DatabaseTest;
@@ -24,7 +25,8 @@ public class FindVersionByProjectAndNameQueryTest
     @Override
     protected FindVersionByProjectAndNameQuery loadQueryDefinition() {
         final Version version = new Version();
-// TODO
+        version.setProject(new Project());
+        version.getProject().setId(-1L);
         final FindVersionByProjectAndNameQuery def = new FindVersionByProjectAndNameQuery(version);
         return def;
     }

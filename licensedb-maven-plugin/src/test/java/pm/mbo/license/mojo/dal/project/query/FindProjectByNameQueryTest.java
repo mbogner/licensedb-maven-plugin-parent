@@ -23,7 +23,8 @@ public class FindProjectByNameQueryTest
 
     @Override
     protected FindProjectByNameQuery loadQueryDefinition() {
-        // TODO
-        return null;
+        final Project project = new Project();
+        project.setName("bla");
+        return new FindProjectByNameQuery(project);
     }
 }
