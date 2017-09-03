@@ -13,6 +13,7 @@
         <module>licensedb-maven-plugin-common-test</module>
         <module>licensedb-maven-plugin-model</module>
         <module>licensedb-maven-plugin</module>
+        <module>licensedb-maven-plugin-jenkins</module>
     </modules>
 
     <properties>

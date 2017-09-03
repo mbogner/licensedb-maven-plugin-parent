@@ -5,6 +5,7 @@ public enum Type {
     JAR,
     POM,
     WAR,
-    HPI
+    HPI,
+    EXECUTABLE_WAR;
 
 }

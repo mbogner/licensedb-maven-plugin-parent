@@ -19,7 +19,7 @@ public class MavenHelper {
             if (artifactEqualsMavenProject(artifact, mavenProject)) {
                 final ArtifactMetadata metadata = new ArtifactMetadata();
                 metadata.setScope(Scope.valueOf(artifact.getScope().toUpperCase()));
-                metadata.setType(Type.valueOf(artifact.getType().toUpperCase()));
+                metadata.setType(Type.valueOf(artifact.getType().replaceAll("-", "_").toUpperCase()));
                 return metadata;
             }
         }

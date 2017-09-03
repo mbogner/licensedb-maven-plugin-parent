@@ -1,0 +1,38 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:section title="License Plugin">
+    <f:entry title="Maven Binary" field="mavenBin" description="Maven binary">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="Maven Goal" field="mavenGoal" description="Maven goal">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="Timeout" field="timeout" description="Timeout for the plugin in seconds">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="DB-User" field="dbUser" description="Database user">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="DB-Pass" field="dbPass" description="Database password">
+      <f:password />
+    </f:entry>
+    <f:entry title="DB-Url" field="dbUrl" description="Database URL">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="Database generation" field="dbGeneration" description="Config for hibernate.hbm2ddl.auto">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="DB-Dialect" field="dbDialect" description="Database dialect">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="DB-Driver" field="dbDriver" description="Database driver">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="Dry Run" field="dryRun" description="Overrides all projects to do a dry run only">
+      <f:checkbox />
+    </f:entry>
+    <f:entry title="Skip" field="skip" description="Skip plugin globally">
+      <f:checkbox />
+    </f:entry>
+  </f:section>
+</j:jelly>

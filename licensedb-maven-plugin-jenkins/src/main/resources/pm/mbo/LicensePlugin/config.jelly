@@ -1,0 +1,22 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <j:set var="uuid" value="${descriptor.createUUID()}" />
+  <f:entry title="ProjectID" field="projectId" description="ID of the project for this build.">
+    <f:textbox default="${uuid}" />
+  </f:entry>
+  <f:entry title="Name" field="name" description="Readable name of this build project">
+    <f:textbox />
+  </f:entry>
+  <f:entry title="Component Name" field="component" description="Name of this component">
+    <f:textbox />
+  </f:entry>
+  <f:entry title="Timeout" field="timeout" description="Timeout for the plugin in seconds. If empty using global default.">
+    <f:textbox />
+  </f:entry>
+  <f:entry title="Dry Run" field="dryRun" description="Skip database entries for this build">
+    <f:checkbox />
+  </f:entry>
+  <f:entry title="Skip" field="skip" description="Skip plugin for this build">
+    <f:checkbox />
+  </f:entry>
+</j:jelly>
