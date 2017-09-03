@@ -17,6 +17,7 @@ import pm.mbo.license.mojo.metadata.ProjectMetadata;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.*;
 
 @Mojo(name = "add-third-party-database", requiresDependencyResolution = ResolutionScope.TEST,
         defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
@@ -61,6 +62,9 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
     @Parameter(property = "licensedb.eatExceptions", defaultValue = "true")
     private boolean eatExceptions;
 
+    @Parameter(property = "licensedb.timeoutSec", defaultValue = "120")
+    private Integer timeoutSec;
+
     @Parameter(property = "project.artifacts", required = true, readonly = true)
     private Set<org.apache.maven.artifact.Artifact> dependencies;
 
@@ -80,15 +84,30 @@ public class AddThirdPartyDatabaseMojo extends AddThirdPartyMojo {
         if (skip) {
             log.warn("skipped");
         } else {
-            if (eatExceptions) {
-                try {
+            final ExecutorService executor = Executors.newSingleThreadExecutor();
+            final Future<String> future = executor.submit(() -> {
+                if (eatExceptions) {
+                    try {
+                        export();
+                    } catch (final InterruptedException exc) { // happens in case of timeout
+                        log.debug("got canceled", exc);
+                    } catch (final Throwable e) { // catch everything bad happening in this mojo
+                        log.error(e);
+                    }
+                } else {
                     export();
-                } catch (final Throwable e) { // catch everything bad happening in this mojo
-                    log.error(e);
                 }
-            } else {
-                export();
+                return null;
+            });
+
+            try {
+                log.debug(String.format("starting with timeout of %ds", timeoutSec));
+                future.get(timeoutSec, TimeUnit.SECONDS);
+            } catch (final TimeoutException e) {
+                log.error(String.format("timeout of %d reached - canceled", timeoutSec));
+                future.cancel(true);
             }
+
         }
     }
 
